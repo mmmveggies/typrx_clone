@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> HAPPY JOY </title>
+    <script src="//code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/q.js/1.0.1/q.js"></script>
+
+    <style>
+        mark {
+           background-color: transparent;
+        }
+        
+        .g {
+            background-color: rgba(0, 255, 0, 0.3);
+        }
+        
+        .b { 
+            background-color: rgba(255, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <p id="p">Call me Ishmael. Some years ago- never mind how long precisely- having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people's hats off- then, I account it high time to get to sea as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the ship. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the ocean with me.</p>
+    <input id="i" type="text" />
+    <hr />
+    <p>wpm:</p>
+    <div id="c"></div>
+    
+    <script>
+        $(function() {
+            
+            var $c = $('#c'), $p = $('#p'), $i = $('#i'),
+                
+                letters = $p.text(),
+                numLetters = letters.length,
+                words = stringToMarkwrappedWords(letters),
+                wordsInDom = $.makeArray( $('mark', $p.html(words)) ),
+                
+                avgWordLen = avgLenElmArrayText(wordsInDom),
+                numCorrectLetters = 0,
+                startTime = new Date().getTime(),
+                wpm = 0;
+            
+            $i.on('input', checkLetter);
+            
+            function checkLetter(event) {
+                var input = $i.val(), curWord = wordsInDom[0],
+                    cwText = curWord.textContent;
+                
+                if (cwText == input)
+                    completeWord(curWord);
+                    
+                else if (cwText.indexOf(input) > -1)
+                    correctSubstring(curWord);
+                    
+                else
+                    badSubstring(curWord)
+                    
+                wpm = getWpm(numCorrectLetters, startTime);
+                showWpm(wpm)
+            }
+            
+            function showWpm(wpm) {
+                $c.css({ 'font-size': wpm+'px' })
+                .text(wpm);
+                
+                console.log($c.attr('font-size'));
+            }
+            
+            function getWpm(numCorrectLetters) {
+                var now = new Date().getTime(),
+                    deltaMin = (now - startTime) / (1000 * 60),
+                    
+                    wpm = numCorrectLetters / (avgWordLen * deltaMin);
+
+                return Math.floor(wpm)
+            }   
+            
+            function completeWord(curWord) {
+                curWord.className = '';
+                wordsInDom.shift();
+                
+                if ( !wordsInDom ) {
+                    return alert("YOU DID IT");
+                }
+                
+                curWord = wordsInDom[0];
+                curWord.className = 'g';
+                
+                $i.removeClass('b').val('')
+                .attr('maxlength', 8 + curWord.textContent.length);
+                
+                numCorrectLetters++
+            }
+            
+            function correctSubstring(curWord) {
+                $i.removeClass('b');
+                curWord.className = 'g';
+                
+                numCorrectLetters++
+            }
+            
+            function badSubstring(curWord) {
+                $i.addClass('b');
+                curWord.className = 'b'
+            }
+                
+            
+            function stringToMarkwrappedWords(text) {
+                var am = "<mark>", pm = "</mark>", endl = ' ', 
+                    words = text.split(endl), wmi = words.length-1;
+                
+                return words.map(function(s, i) {
+                        if (i == 0)
+                            $i.attr('maxlength', 8 + s.length);
+                    
+                        if (i < wmi) 
+                            return am + s + endl + pm;
+                        else
+                            return am + s + pm
+                })
+            }
+
+            function avgLenElmArrayText(wordsInDom) {
+                return wordsInDom.reduce(function(a, b) {
+                    return a + b.textContent.length
+                }, 0) / wordsInDom.length
+            }
+            
+            function makeWpmGetter(avgWordLen) {
+                var startMin = new Date().getTime();
+                
+                return function(numCorrectLetters) {
+                    return (numCorrectLetters/avgWordLen)
+                           / (new Date().getTime() * 1000 * 60)
+                }
+            }
+            
+        });
+    </script>
+    
+</body>
+</html>
