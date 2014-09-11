@@ -4,7 +4,7 @@ typrx_clone
 #### Face-value clone of (the best) wpm game at http://app.typrx.com
 
 ##### So far:
-- Current word hightlited
+- Current word highlighted
 - Mistakes require correction
 - Per-keystroke spedometer
     
