@@ -12,6 +12,3 @@ typrx_clone
 + Performance statistics
 + Editable "track" text
 + Cheat-proofing
-    
-    
-jakeselig at gmail
